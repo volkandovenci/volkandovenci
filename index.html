@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tekyerden Panel UI (Demo)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* küçük dokunuş: scrollbar */
+      ::-webkit-scrollbar { width: 10px; height: 10px; }
+      ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 999px; }
+      ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-900">
+    <div class="min-h-screen flex">
+      <!-- Sidebar -->
+      <aside id="sidebar" class="w-72 hidden lg:flex flex-col border-r bg-white">
+        <div class="p-5 flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl bg-gray-900 text-white grid place-items-center font-semibold">T</div>
+          <div>
+            <div class="font-semibold leading-tight">Tekyerden</div>
+            <div class="text-xs text-gray-500">Panel • Demo UI</div>
+          </div>
+        </div>
+
+        <nav class="px-3 pb-3 space-y-1">
+          <a class="nav-item" data-view="dashboard" href="#">
+            <span class="icon">🏠</span><span>Dashboard</span>
+          </a>
+          <div class="mt-3 px-3 text-xs font-semibold text-gray-400">OPERASYON</div>
+          <a class="nav-item" data-view="customers" href="#"><span class="icon">👥</span><span>Müşteriler</span></a>
+          <a class="nav-item" data-view="invoices" href="#"><span class="icon">🧾</span><span>Faturalar</span></a>
+          <a class="nav-item" data-view="payments" href="#"><span class="icon">💳</span><span>Ödemeler</span></a>
+          <a class="nav-item" data-view="calendar" href="#"><span class="icon">📅</span><span>Takvim</span></a>
+
+          <div class="mt-3 px-3 text-xs font-semibold text-gray-400">YÖNETİM</div>
+          <a class="nav-item" data-view="reports" href="#"><span class="icon">📊</span><span>Raporlar</span></a>
+          <a class="nav-item" data-view="settings" href="#"><span class="icon">⚙️</span><span>Ayarlar</span></a>
+        </nav>
+
+        <div class="mt-auto p-4">
+          <div class="rounded-2xl border bg-gray-50 p-4">
+            <div class="text-xs text-gray-500">Plan</div>
+            <div class="font-semibold">Solo</div>
+            <div class="mt-2 text-xs text-gray-500">Kalan deneme süresi</div>
+            <div class="mt-2 h-2 rounded-full bg-gray-200 overflow-hidden">
+              <div class="h-full w-2/3 bg-gray-900"></div>
+            </div>
+            <button class="mt-3 w-full rounded-xl bg-gray-900 text-white py-2 text-sm font-medium hover:bg-black">
+              Paketi Yükselt
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="flex-1 flex flex-col">
+        <!-- Topbar -->
+        <header class="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
+          <div class="px-4 sm:px-6 py-4 flex items-center gap-3">
+            <button id="btnMobile" class="lg:hidden rounded-xl border px-3 py-2 text-sm hover:bg-gray-50">
+              ☰
+            </button>
+
+            <div class="flex-1">
+              <div class="text-sm text-gray-500">Hoş geldin,</div>
+              <div class="text-lg font-semibold leading-tight" id="pageTitle">Dashboard</div>
+            </div>
+
+            <div class="hidden sm:flex items-center gap-2">
+              <div class="relative">
+                <input
+                  id="search"
+                  class="w-72 rounded-2xl border bg-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+                  placeholder="Ara: müşteri, fatura, ödeme…"
+                />
+                <div class="absolute right-3 top-2.5 text-gray-400 text-sm">⌘K</div>
+              </div>
+
+              <button class="rounded-2xl border px-4 py-2 text-sm hover:bg-gray-50">🔔</button>
+              <button class="rounded-2xl border px-4 py-2 text-sm hover:bg-gray-50">❓</button>
+
+              <div class="flex items-center gap-2 rounded-2xl border px-3 py-2">
+                <div class="h-8 w-8 rounded-xl bg-gray-200"></div>
+                <div class="text-sm">
+                  <div class="font-medium leading-tight">Volkan</div>
+                  <div class="text-xs text-gray-500 leading-tight">volkan@…</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Content -->
+        <main class="p-4 sm:p-6 space-y-6">
+          <!-- Quick Actions -->
+          <section class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div class="flex items-center gap-2 text-sm">
+              <span class="inline-flex items-center gap-2 rounded-2xl border bg-white px-3 py-2">
+                <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                Sistemler normal
+              </span>
+              <span class="text-gray-500">•</span>
+              <span class="text-gray-500">Son güncelleme: <span id="lastUpdated" class="font-medium text-gray-700">—</span></span>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <button class="btn-primary" onclick="toast('Yeni fatura akışı açıldı (demo).')">➕ Fatura Oluştur</button>
+              <button class="btn-secondary" onclick="toast('Müşteri ekleme akışı açıldı (demo).')">➕ Müşteri Ekle</button>
+              <button class="btn-secondary" onclick="toast('Ödeme linki oluşturuldu (demo).')">🔗 Ödeme Linki</button>
+              <button class="btn-secondary" onclick="toast('Randevu oluşturma açıldı (demo).')">📅 Randevu</button>
+            </div>
+          </section>
+
+          <!-- KPI Cards -->
+          <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4" id="kpiGrid">
+            <!-- injected by JS -->
+          </section>
+
+          <!-- Grid -->
+          <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <!-- Actions Feed -->
+            <div class="xl:col-span-2 space-y-4">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Günlük Aksiyonlar</div>
+                    <div class="card-subtitle">Bugün tamamlanması gereken kritik işler</div>
+                  </div>
+                  <button class="btn-secondary" onclick="toast('Tüm aksiyonlar listesi (demo).')">Tümü</button>
+                </div>
+                <div class="divide-y" id="actionFeed">
+                  <!-- injected by JS -->
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Finansal Sağlık</div>
+                    <div class="card-subtitle">Son 30 gün trendi + hızlı içgörü</div>
+                  </div>
+                  <select class="rounded-xl border px-3 py-2 text-sm bg-white" id="rangeSelect">
+                    <option value="30" selected>Son 30 gün</option>
+                    <option value="90">Son 90 gün</option>
+                    <option value="365">Son 12 ay</option>
+                  </select>
+                </div>
+
+                <div class="p-4">
+                  <!-- Mini chart (SVG) -->
+                  <div class="rounded-2xl border bg-gray-50 p-4">
+                    <div class="flex items-center justify-between">
+                      <div class="text-sm font-medium">Gelir / Gider Trendi</div>
+                      <div class="text-xs text-gray-500">Günlük</div>
+                    </div>
+                    <svg viewBox="0 0 600 160" class="mt-3 w-full">
+                      <path id="incomeLine" d="" fill="none" stroke="currentColor" stroke-width="3" class="text-gray-900"></path>
+                      <path id="expenseLine" d="" fill="none" stroke="currentColor" stroke-width="3" class="text-gray-400"></path>
+                      <line x1="0" y1="150" x2="600" y2="150" stroke="#e5e7eb" stroke-width="2"></line>
+                    </svg>
+
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div class="rounded-2xl bg-white border p-3">
+                        <div class="text-xs text-gray-500">Gelir</div>
+                        <div class="text-lg font-semibold" id="incomeValue">—</div>
+                        <div class="text-xs text-emerald-600 font-medium" id="incomeDelta">—</div>
+                      </div>
+                      <div class="rounded-2xl bg-white border p-3">
+                        <div class="text-xs text-gray-500">Gider</div>
+                        <div class="text-lg font-semibold" id="expenseValue">—</div>
+                        <div class="text-xs text-gray-600 font-medium" id="expenseDelta">—</div>
+                      </div>
+                      <div class="rounded-2xl bg-white border p-3">
+                        <div class="text-xs text-gray-500">Ort. Tahsilat</div>
+                        <div class="text-lg font-semibold" id="collectionValue">—</div>
+                        <div class="text-xs text-gray-600 font-medium">hedef: 7 gün</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-4">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Bugün</div>
+                    <div class="card-subtitle">Randevu + görev + teslim</div>
+                  </div>
+                  <span class="badge" id="busyBadge">Yoğunluk: Orta</span>
+                </div>
+                <div class="p-4 space-y-2" id="todayList">
+                  <!-- injected -->
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Akıllı Öneriler</div>
+                    <div class="card-subtitle">Kurala dayalı (AI-ready)</div>
+                  </div>
+                  <button class="btn-secondary" onclick="toast('Öneri ayarları (demo).')">Ayarla</button>
+                </div>
+                <div class="p-4 space-y-2" id="insightsList">
+                  <!-- injected -->
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Top Müşteriler</div>
+                    <div class="card-subtitle">Bu ay en yüksek ciro</div>
+                  </div>
+                  <button class="btn-secondary" onclick="toast('CRM ekranı (demo).')">CRM</button>
+                </div>
+                <div class="p-4 space-y-3" id="topCustomers">
+                  <!-- injected -->
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Toast -->
+          <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 hidden">
+            <div class="rounded-2xl bg-gray-900 text-white px-4 py-3 shadow-lg text-sm" id="toastText"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // ----- UI Helpers -----
+      const $ = (q) => document.querySelector(q);
+      const $$ = (q) => Array.from(document.querySelectorAll(q));
+
+      function moneyTRY(n) {
+        const f = new Intl.NumberFormat("tr-TR");
+        return f.format(n) + "₺";
+      }
+
+      function toast(msg) {
+        const t = $("#toast");
+        $("#toastText").textContent = msg;
+        t.classList.remove("hidden");
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => t.classList.add("hidden"), 1600);
+      }
+
+      // ----- Mock Data -----
+      const state = {
+        kpis: [
+          { label: "Toplam Gelir", value: 124000, delta: "+12%", tone: "up" },
+          { label: "Fatura", value: 42, suffix: "adet", delta: "+6", tone: "up" },
+          { label: "Bekleyen Tahsilat", value: 18200, delta: "3 işlem", tone: "warn" },
+          { label: "Aktif Müşteri", value: 16, delta: "+2", tone: "up" },
+          { label: "Aylık Trend", value: 8.4, suffix: "%", delta: "son 30 gün", tone: "info" },
+        ],
+        actions: [
+          { icon: "💳", title: "3 ödeme bekliyor", desc: "Toplam 18.200₺ • 2 müşteri", cta: "Şimdi Tahsil", tone: "warn" },
+          { icon: "🧾", title: "2 fatura onayda", desc: "Taslak → Gönderim", cta: "Onayla", tone: "info" },
+          { icon: "✍️", title: "1 belge imza bekliyor", desc: "Hizmet sözleşmesi", cta: "İmzala", tone: "warn" },
+          { icon: "📩", title: "Teklif taslağı hazır", desc: "X Danışmanlık • 24.000₺", cta: "Gönder", tone: "info" },
+        ],
+        today: [
+          { time: "10:30", label: "Müşteri görüşmesi", meta: "ABC Ltd • Zoom" },
+          { time: "14:00", label: "Proje teslimi", meta: "Landing page rev." },
+          { time: "17:30", label: "Fatura gönderimi", meta: "2 müşteri" },
+        ],
+        insights: [
+          { icon: "⚠️", text: "Bu ay gelir geçen aya göre %8 düştü.", action: "Detay" },
+          { icon: "💡", text: "X Danışmanlık’a yeniden teklif gönderebilirsin.", action: "Teklif" },
+          { icon: "⏳", text: "Ortalama tahsilat süren 9 güne çıktı.", action: "İyileştir" },
+        ],
+        topCustomers: [
+          { name: "ABC Ltd", amount: 32000, note: "4 fatura" },
+          { name: "X Danışmanlık", amount: 21000, note: "2 fatura" },
+          { name: "Y Agency", amount: 14000, note: "3 fatura" },
+        ],
+      };
+
+      // ----- Render -----
+      function renderKPIs() {
+        const grid = $("#kpiGrid");
+        grid.innerHTML = "";
+        state.kpis.forEach((k) => {
+          const tone = k.tone;
+          const badge =
+            tone === "up"
+              ? `<span class="text-emerald-600 font-medium">${k.delta}</span>`
+              : tone === "warn"
+              ? `<span class="text-amber-600 font-medium">${k.delta}</span>`
+              : `<span class="text-gray-600 font-medium">${k.delta}</span>`;
+
+          const valueText =
+            typeof k.value === "number" && k.label.includes("Gelir")
+              ? moneyTRY(k.value)
+              : typeof k.value === "number" && k.label.includes("Tahsilat")
+              ? moneyTRY(k.value)
+              : k.suffix
+              ? `${k.value} ${k.suffix}`
+              : k.value;
+
+          const card = document.createElement("div");
+          card.className =
+            "rounded-2xl border bg-white p-4 hover:shadow-sm transition cursor-pointer";
+          card.innerHTML = `
+            <div class="text-xs text-gray-500">${k.label}</div>
+            <div class="mt-1 text-2xl font-semibold tracking-tight">${valueText}</div>
+            <div class="mt-2 text-xs">${badge} <span class="text-gray-400">•</span> <span class="text-gray-500">tıklayarak detaya git</span></div>
+          `;
+          card.onclick = () => toast(`${k.label} detayı (demo).`);
+          grid.appendChild(card);
+        });
+      }
+
+      function renderActions() {
+        const wrap = $("#actionFeed");
+        wrap.innerHTML = "";
+        state.actions.forEach((a) => {
+          const leftTone =
+            a.tone === "warn"
+              ? "bg-amber-50 border-amber-100"
+              : "bg-gray-50 border-gray-100";
+          const row = document.createElement("div");
+          row.className = "p-4 flex items-start gap-3";
+          row.innerHTML = `
+            <div class="h-10 w-10 rounded-2xl border ${leftTone} grid place-items-center text-lg">${a.icon}</div>
+            <div class="flex-1">
+              <div class="font-medium">${a.title}</div>
+              <div class="text-sm text-gray-500">${a.desc}</div>
+            </div>
+            <button class="btn-primary shrink-0">${a.cta}</button>
+          `;
+          row.querySelector("button").onclick = () => toast(`${a.cta} (demo).`);
+          wrap.appendChild(row);
+        });
+      }
+
+      function renderToday() {
+        const wrap = $("#todayList");
+        wrap.innerHTML = "";
+        state.today.forEach((t) => {
+          const item = document.createElement("div");
+          item.className =
+            "flex items-start gap-3 rounded-2xl border bg-white p-3 hover:bg-gray-50 cursor-pointer";
+          item.innerHTML = `
+            <div class="w-14 text-xs text-gray-500 font-medium">${t.time}</div>
+            <div class="flex-1">
+              <div class="text-sm font-medium">${t.label}</div>
+              <div class="text-xs text-gray-500">${t.meta}</div>
+            </div>
+            <div class="text-gray-400">›</div>
+          `;
+          item.onclick = () => toast(`${t.label} açıldı (demo).`);
+          wrap.appendChild(item);
+        });
+
+        // busy badge (basit kural)
+        const n = state.today.length;
+        $("#busyBadge").textContent = n >= 4 ? "Yoğunluk: Yüksek" : n >= 2 ? "Yoğunluk: Orta" : "Yoğunluk: Düşük";
+      }
+
+      function renderInsights() {
+        const wrap = $("#insightsList");
+        wrap.innerHTML = "";
+        state.insights.forEach((i) => {
+          const item = document.createElement("div");
+          item.className =
+            "flex items-start gap-3 rounded-2xl border bg-gray-50 p-3";
+          item.innerHTML = `
+            <div class="text-lg">${i.icon}</div>
+            <div class="flex-1">
+              <div class="text-sm">${i.text}</div>
+            </div>
+            <button class="btn-secondary shrink-0">${i.action}</button>
+          `;
+          item.querySelector("button").onclick = () => toast(`${i.action} (demo).`);
+          wrap.appendChild(item);
+        });
+      }
+
+      function renderTopCustomers() {
+        const wrap = $("#topCustomers");
+        wrap.innerHTML = "";
+        state.topCustomers.forEach((c, idx) => {
+          const item = document.createElement("div");
+          item.className = "flex items-center justify-between gap-3";
+          item.innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="h-9 w-9 rounded-2xl bg-gray-900 text-white grid place-items-center text-sm font-semibold">
+                ${idx + 1}
+              </div>
+              <div>
+                <div class="text-sm font-medium">${c.name}</div>
+                <div class="text-xs text-gray-500">${c.note}</div>
+              </div>
+            </div>
+            <div class="text-sm font-semibold">${moneyTRY(c.amount)}</div>
+          `;
+          wrap.appendChild(item);
+        });
+      }
+
+      function buildLinePath(values, width = 600, height = 140, pad = 10) {
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const span = max - min || 1;
+        const step = (width - pad * 2) / (values.length - 1);
+        return values
+          .map((v, i) => {
+            const x = pad + i * step;
+            const y = pad + (height - pad * 2) * (1 - (v - min) / span);
+            return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+          })
+          .join(" ");
+      }
+
+      function renderChart(rangeDays) {
+        // demo: range'e göre farklı seri üret
+        const n = rangeDays === 30 ? 14 : rangeDays === 90 ? 18 : 24;
+        const income = Array.from({ length: n }, (_, i) => 80 + i * 2 + (Math.sin(i / 2) * 12));
+        const expense = Array.from({ length: n }, (_, i) => 62 + i * 1.3 + (Math.cos(i / 2) * 10));
+
+        $("#incomeLine").setAttribute("d", buildLinePath(income));
+        $("#expenseLine").setAttribute("d", buildLinePath(expense));
+
+        const incomeSum = Math.round(income.reduce((a, b) => a + b, 0) * 1000);
+        const expenseSum = Math.round(expense.reduce((a, b) => a + b, 0) * 1000);
+
+        $("#incomeValue").textContent = moneyTRY(incomeSum);
+        $("#expenseValue").textContent = moneyTRY(expenseSum);
+        $("#collectionValue").textContent = rangeDays === 30 ? "9 gün" : rangeDays === 90 ? "11 gün" : "10 gün";
+        $("#incomeDelta").textContent = "▲ " + (rangeDays === 30 ? "12%" : rangeDays === 90 ? "8%" : "18%");
+        $("#expenseDelta").textContent = "● " + (rangeDays === 30 ? "stabil" : rangeDays === 90 ? "+4%" : "+6%");
+      }
+
+      // ----- Navigation (demo views) -----
+      function setActiveNav(view) {
+        $$(".nav-item").forEach((a) => {
+          a.classList.toggle("nav-active", a.dataset.view === view);
+        });
+        const titles = {
+          dashboard: "Dashboard",
+          customers: "Müşteriler",
+          invoices: "Faturalar",
+          payments: "Ödemeler",
+          calendar: "Takvim",
+          reports: "Raporlar",
+          settings: "Ayarlar",
+        };
+        $("#pageTitle").textContent = titles[view] || "Dashboard";
+        toast(`${$("#pageTitle").textContent} (demo)`);
+      }
+
+      // ----- Mobile Sidebar Toggle -----
+      $("#btnMobile").addEventListener("click", () => {
+        const sb = $("#sidebar");
+        sb.classList.toggle("hidden");
+        sb.classList.toggle("fixed");
+        sb.classList.toggle("inset-y-0");
+        sb.classList.toggle("left-0");
+        sb.classList.toggle("z-20");
+        sb.classList.toggle("shadow-xl");
+      });
+
+      // ----- Init -----
+      (function init() {
+        // styles for nav & buttons (Tailwind class shortcuts)
+        const style = document.createElement("style");
+        style.textContent = `
+          .nav-item{ display:flex; gap:.6rem; align-items:center; padding:.7rem .9rem; border-radius:1rem; color:#374151; font-size:.95rem; }
+          .nav-item:hover{ background:#f9fafb; }
+          .nav-item .icon{ width:1.4rem; text-align:center; }
+          .nav-active{ background:#111827; color:white; }
+          .nav-active:hover{ background:#0b1220; }
+          .btn-primary{ border-radius:1rem; background:#111827; color:white; padding:.55rem .9rem; font-size:.9rem; font-weight:600; }
+          .btn-primary:hover{ background:#000; }
+          .btn-secondary{ border-radius:1rem; border:1px solid #e5e7eb; background:white; padding:.55rem .9rem; font-size:.9rem; font-weight:600; }
+          .btn-secondary:hover{ background:#f9fafb; }
+          .card{ border:1px solid #e5e7eb; background:white; border-radius:1.25rem; overflow:hidden; }
+          .card-header{ padding:1rem; display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
+          .card-title{ font-weight:700; }
+          .card-subtitle{ font-size:.85rem; color:#6b7280; }
+          .badge{ display:inline-flex; align-items:center; border:1px solid #e5e7eb; background:#fff; padding:.35rem .6rem; border-radius:999px; font-size:.75rem; color:#374151; }
+        `;
+        document.head.appendChild(style);
+
+        $("#lastUpdated").textContent = new Date().toLocaleString("tr-TR");
+
+        renderKPIs();
+        renderActions();
+        renderToday();
+        renderInsights();
+        renderTopCustomers();
+        renderChart(30);
+
+        $$(".nav-item").forEach((a) => {
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            setActiveNav(a.dataset.view);
+          });
+        });
+        setActiveNav("dashboard");
+
+        $("#rangeSelect").addEventListener("change", (e) => {
+          renderChart(Number(e.target.value));
+          toast(`Grafik: ${e.target.value} gün (demo).`);
+        });
+
+        // Cmd+K (demo)
+        document.addEventListener("keydown", (e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+            e.preventDefault();
+            $("#search").focus();
+            toast("Arama odakta (demo).");
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
